@@ -1,0 +1,181 @@
+#!/usr/bin/env python3
+# Упрощенный скрипт для продолжения обучения (без загрузки состояния оптимизатора)
+import torch
+import os
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    TrainingArguments,
+    Trainer,
+    DataCollatorForLanguageModeling,
+    EarlyStoppingCallback
+)
+from peft import PeftModel
+from datasets import load_from_disk, DatasetDict
+
+def main():
+    print("=== Продолжение обучения модели на текстах Гоголя (упрощенная версия) ===")
+    
+    # Модель и данные
+    MODEL_NAME = "ai-forever/rugpt3small_based_on_gpt2"
+    DATA_PATH = "data/tokenized_gpt2"
+    CHECKPOINT_PATH = "./gogol_finetuned_final/checkpoint-375"
+    OUTPUT_DIR = "./gogol_finetuned_resumed"
+    
+    # Проверка данных
+    if not os.path.exists(DATA_PATH):
+        print(f"Ошибка: датасет не найден в {DATA_PATH}")
+        print("Сначала запустите retokenize_for_gpt2.py")
+        return
+    
+    # Проверка чекпоинта
+    if not os.path.exists(CHECKPOINT_PATH):
+        print(f"Ошибка: чекпоинт не найден в {CHECKPOINT_PATH}")
+        print("Проверьте путь к чекпоинту")
+        return
+    
+    # Загрузка датасета
+    print("Загрузка датасета...")
+    dataset = load_from_disk(DATA_PATH)
+    
+    # Разделение
+    if isinstance(dataset, DatasetDict):
+        if "train" in dataset:
+            train_data = dataset["train"]
+        else:
+            train_data = dataset[list(dataset.keys())[0]]
+        split_dataset = train_data.train_test_split(test_size=0.1, seed=42)
+        train_dataset = split_dataset["train"]
+        eval_dataset = split_dataset["test"]
+    else:
+        split_dataset = dataset.train_test_split(test_size=0.1, seed=42)
+        train_dataset = split_dataset["train"]
+        eval_dataset = split_dataset["test"]
+    
+    print(f"Датасет: {len(dataset)} примеров")
+    print(f"Train: {len(train_dataset)}, Validation: {len(eval_dataset)}")
+    
+    # Загрузка модели и токенизатора из чекпоинта
+    print(f"Загрузка модели из чекпоинта {CHECKPOINT_PATH}...")
+    tokenizer = AutoTokenizer.from_pretrained(CHECKPOINT_PATH)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    
+    # Загружаем модель напрямую из чекпоинта (уже с LoRA весами)
+    model = AutoModelForCausalLM.from_pretrained(
+        CHECKPOINT_PATH,
+        torch_dtype=torch.float32
+    )
+    
+    # Проверяем, есть ли обучаемые параметры
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    total_params = sum(p.numel() for p in model.parameters())
+    print(f"Обучаемые параметры: {trainable_params} || Всего параметров: {total_params} || Обучаемых: {100*trainable_params/total_params:.4f}%")
+    
+    # Data collator
+    data_collator = DataCollatorForLanguageModeling(
+        tokenizer=tokenizer,
+        mlm=False
+    )
+    
+    # Аргументы обучения БЕЗ продолжения состояния оптимизатора
+    training_args = TrainingArguments(
+        output_dir=OUTPUT_DIR,
+        num_train_epochs=3,                    # 3 дополнительные эпохи
+        per_device_train_batch_size=1,
+        per_device_eval_batch_size=1,
+        gradient_accumulation_steps=4,
+        eval_strategy="epoch",
+        save_strategy="epoch",
+        logging_steps=20,
+        learning_rate=5e-5,
+        weight_decay=0.01,
+        fp16=False,
+        max_grad_norm=0.5,
+        warmup_steps=50,
+        lr_scheduler_type="linear",
+        report_to="none",
+        push_to_hub=False,
+        load_best_model_at_end=True,
+        metric_for_best_model="eval_loss",
+        greater_is_better=False,
+        save_total_limit=3,
+        # Не загружаем состояние оптимизатора, начинаем с чистого листа
+        resume_from_checkpoint=None  # type: ignore[assignment]
+    )
+    
+    # Trainer с early stopping callback
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
+        data_collator=data_collator,
+        callbacks=[EarlyStoppingCallback(early_stopping_patience=2, early_stopping_threshold=0.01)],
+    )
+    
+    print(f"\nПараметры обучения:")
+    print(f"- Модель: {MODEL_NAME}")
+    print(f"- Чекпоинт: {CHECKPOINT_PATH} (только веса модели)")
+    print(f"- Эпохи: 3 (дополнительно)")
+    print(f"- Batch size: 1 (effective: 4)")
+    print(f"- Learning rate: 5e-5")
+    print(f"- Данные: {len(train_dataset)} train, {len(eval_dataset)} validation")
+    print(f"- Выходная директория: {OUTPUT_DIR}")
+    print(f"- Early stopping: включен (patience=2, threshold=0.01)")
+    print("\nНачало обучения...")
+    
+    # Запуск обучения
+    try:
+        trainer.train()
+        
+        print("\nОбучение завершено успешно!")
+        
+        # Сохранение
+        print("Сохранение модели...")
+        model.save_pretrained(OUTPUT_DIR)
+        tokenizer.save_pretrained(OUTPUT_DIR)
+        
+        # Анализ результатов
+        if trainer.state.log_history:
+            final_log = trainer.state.log_history[-1]
+            if "eval_loss" in final_log:
+                print(f"\nФинальные метрики:")
+                print(f"- Validation loss: {final_log['eval_loss']:.4f}")
+                if "loss" in final_log:
+                    print(f"- Train loss: {final_log['loss']:.4f}")
+        
+        print(f"\nМодель сохранена в: {OUTPUT_DIR}")
+        
+        # Тест генерации
+        print("\nТест генерации текста...")
+        model.eval()
+        prompts = [
+            "Чичиков приехал в город",
+            "В губернском городе N",
+            "Однажды вечером сидел я"
+        ]
+        
+        for prompt in prompts:
+            inputs = tokenizer(prompt, return_tensors="pt")
+            
+            with torch.no_grad():
+                outputs = model.generate(  # type: ignore[union-attr]
+                    inputs.input_ids,
+                    max_length=100,
+                    temperature=0.7,
+                    do_sample=True,
+                    pad_token_id=tokenizer.pad_token_id
+                )
+            
+            generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
+            print(f"\nПромпт: {prompt}")
+            print(f"Сгенерировано: {generated}")
+            
+    except Exception as e:
+        print(f"\nОшибка во время обучения: {e}")
+        import traceback
+        traceback.print_exc()
+
+if __name__ == "__main__":
+    main()

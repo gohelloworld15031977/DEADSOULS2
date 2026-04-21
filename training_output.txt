@@ -1,0 +1,72 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+=== Продолжение обучения модели на текстах Гоголя ===
+Загрузка датасета...
+Датасет: 1664 примеров
+Train: 1497, Validation: 167
+Загрузка токенизатора из чекпоинта ./gogol_finetuned_final/checkpoint-375...
+Загрузка базовой модели...
+Loading weights:   0%|          | 0/149 [00:00<?, ?it/s]Loading weights: 100%|##########| 149/149 [00:00<00:00, 27083.48it/s]
+The tied weights mapping and config for this model specifies to tie transformer.wte.weight to lm_head.weight, but both are present in the checkpoints, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning
+[1mGPT2LMHeadModel LOAD REPORT[0m from: ai-forever/rugpt3small_based_on_gpt2
+Key                                     | Status     |  | 
+----------------------------------------+------------+--+-
+transformer.h.{0...11}.attn.masked_bias | UNEXPECTED |  | 
+
+[3mNotes:
+- UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.[0m
+Traceback (most recent call last):
+  File "c:\Code\JuliaProject\DeadSouls\resume_training_fixed.py", line 120, in main
+    trainer.train(resume_from_checkpoint=CHECKPOINT_PATH)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\transformers\trainer.py", line 1424, in train
+    return inner_training_loop(
+        args=args,
+    ...<2 lines>...
+        ignore_keys_for_eval=ignore_keys_for_eval,
+    )
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\transformers\trainer.py", line 1463, in _inner_training_loop
+    model, train_dataloader = self._prepare_for_training(max_steps, train_dataloader, resume_from_checkpoint)
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\transformers\trainer.py", line 1643, in _prepare_for_training
+    self._load_optimizer_and_scheduler(resume_from_checkpoint)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\transformers\trainer.py", line 3645, in _load_optimizer_and_scheduler
+    self.optimizer.load_state_dict(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        torch.load(
+        ^^^^^^^^^^^
+            os.path.join(checkpoint, OPTIMIZER_NAME), map_location=map_location, weights_only=True
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        )
+        ^
+    )
+    ^
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\accelerate\optimizer.py", line 107, in load_state_dict
+    self.optimizer.load_state_dict(state_dict)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\torch\_compile.py", line 54, in inner
+    return disable_fn(*args, **kwargs)
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\torch\_dynamo\eval_frame.py", line 1263, in _fn
+    return fn(*args, **kwargs)
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\torch\optim\optimizer.py", line 954, in load_state_dict
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: loaded state dict contains a parameter group that doesn't match the size of optimizer's group
+Загрузка LoRA адаптера из чекпоинта...
+trainable params: 0 || all params: 165,014,016 || trainable%: 0.0000
+
+Параметры обучения:
+- Модель: ai-forever/rugpt3small_based_on_gpt2
+- Чекпоинт: ./gogol_finetuned_final/checkpoint-375
+- Эпохи: 5 (дополнительно)
+- Batch size: 1 (effective: 4)
+- Learning rate: 5e-5
+- Данные: 1497 train, 167 validation
+- Выходная директория: ./gogol_finetuned_resumed
+- Early stopping: включен (patience=2, threshold=0.01)
+
+Продолжение обучения...
+
+Ошибка во время обучения: loaded state dict contains a parameter group that doesn't match the size of optimizer's group

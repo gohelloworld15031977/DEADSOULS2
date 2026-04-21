@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчёт о датасете Гоголя</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 8px; max-width: 900px; margin: 0 auto; }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        .stat-box { background: #ecf0f1; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .highlight { color: #e74c3c; font-weight: bold; }
+        .success { color: #27ae60; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #3498db; color: white; }
+        .warning { background: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; margin: 10px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📚 Отчёт о датасете Гоголя</h1>
+    <p><strong>Дата анализа:</strong> 2026-04-17</p>
+    <p><strong>Модель:</strong> ai-forever/rugpt3small_based_on_gpt2</p>
+
+    <h2>📊 Текущее обучение</h2>
+    <div class="stat-box">
+        <p><strong>Датасет:</strong> data/tokenized_gpt2</p>
+        <p><strong>Количество примеров:</strong> <span class="highlight">1,664</span></p>
+        <p><strong>Длина примера:</strong> 256 токенов</p>
+        <p><strong>Структура:</strong> input_ids, attention_mask, labels</p>
+        <p><strong>Эффективный размер:</strong> ~425,000 токенов</p>
+    </div>
+
+    <h2>📁 Исходные тексты</h2>
+    <table>
+        <tr><th>Файл</th><th>Размер (байт)</th><th>Символов</th><th>Строк/абзацев</th></tr>
+        <tr><td>gogol_books.txt</td><td>2,765,202</td><td>1,544,087</td><td>1 (большой текст)</td></tr>
+        <tr><td>gogol_processed.txt</td><td>2,770,161</td><td>1,545,718</td><td>3,329 абзацев</td></tr>
+        <tr><td>gogol_complete.txt</td><td>2,791,615</td><td>1,564,155</td><td>6,344</td></tr>
+        <tr><td>combined_dataset.txt</td><td>5,540,294</td><td>3,091,408</td><td>6,657</td></tr>
+    </table>
+
+    <h2>📖 Произведения Гоголя в датасете</h2>
+    <div class="stat-box">
+        <p><strong>ОСНОВНЫЕ ТЕКСТЫ (gogol_books.txt):</strong></p>
+        <ul>
+            <li>✅ Мёртвые души (Том 1)</li>
+            <li>✅ Вечера на хуторе близ Диканьки</li>
+            <li>✅ Миргород (Тарас Бульба, Вий, Старосветские помещики)</li>
+            <li>✅ Петербургские повести (Шинель, Нос, Портрет, Записки сумасшедшего)</li>
+            <li>✅ Ревизор</li>
+            <li>✅ Женитьба</li>
+            <li>✅ Выбранные места из переписки с друзьями</li>
+            <li>✅ Авторская исповедь</li>
+        </ul>
+    </div>
+
+    <h2>⚠️ Дополнительные тексты (заглушки)</h2>
+    <div class="warning">
+        <p><strong>Внимание:</strong> Эти файлы содержат только заглушки, текст нужно загрузить отдельно:</p>
+        <ul>
+            <li>❌ Авторская_исповедь.txt (371 символ - заглушка)</li>
+            <li>❌ Выбранные_места_из_переписки_с_друзьями.txt (455 символов - заглушка)</li>
+            <li>❌ Мёртвые_души.txt (347 символов - заглушка)</li>
+            <li>❌ Петербургские_повести.txt (383 символа - заглушка)</li>
+            <li>❌ Тарас_Бульба.txt (347 символов - заглушка)</li>
+        </ul>
+    </div>
+
+    <h2>📈 Статистика обучения</h2>
+    <div class="stat-box">
+        <p><strong>Текущая эпоха:</strong> <span class="highlight">3.15 из 5</span></p>
+        <p><strong>Eval Loss:</strong> ~3.774 (эпоха 3)</p>
+        <p><strong>Перплексия:</strong> ~43.5</p>
+        <p><strong>Обучаемых параметров:</strong> 1,179,648 (LoRA)</p>
+        <p><strong>Всего параметров модели:</strong> ~12-15M</p>
+    </div>
+
+    <h2>🎯 Выводы</h2>
+    <div class="stat-box">
+        <p><strong>✅ Что хорошо:</strong></p>
+        <ul>
+            <li>Основные произведения Гоголя представлены</li>
+            <li>~1.5M символов качественного текста</li>
+            <li>Датасет разделён на 3,329 абзацев для обучения</li>
+            <li>Модель обучается стабильно, eval_loss снижается</li>
+        </ul>
+        <p><strong>⚠️ Что можно улучшить:</strong></p>
+        <ul>
+            <li>Дополнительные тексты - только заглушки (нужно загрузить полные версии)</li>
+            <li>Можно увеличить датасет до 5-10K примеров</li>
+            <li>Возможно, стоит добавить больше разнообразия (письма, дневники Гоголя)</li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,112 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+=== Продолжение обучения модели на текстах Гоголя (упрощенная версия) ===
+Загрузка датасета...
+Датасет: 1664 примеров
+Train: 1497, Validation: 167
+Загрузка модели из чекпоинта ./gogol_finetuned_final/checkpoint-375...
+Loading weights:   0%|          | 0/149 [00:00<?, ?it/s]Loading weights: 100%|##########| 149/149 [00:00<00:00, 6742.02it/s]
+The tied weights mapping and config for this model specifies to tie transformer.wte.weight to lm_head.weight, but both are present in the checkpoints, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning
+[1mGPT2LMHeadModel LOAD REPORT[0m from: ai-forever/rugpt3small_based_on_gpt2
+Key                                     | Status     |  | 
+----------------------------------------+------------+--+-
+transformer.h.{0...11}.attn.masked_bias | UNEXPECTED |  | 
+
+[3mNotes:
+- UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.[0m
+Loading weights: 0it [00:00, ?it/s]Loading weights: 0it [00:00, ?it/s]
+[1mGPT2LMHeadModel LOAD REPORT[0m from: ./gogol_finetuned_final/checkpoint-375
+Key                                                                       | Status     | 
+--------------------------------------------------------------------------+------------+-
+base_model.model.transformer.h.{0...11}.attn.c_proj.lora_B.default.weight | UNEXPECTED | 
+base_model.model.transformer.h.{0...11}.mlp.c_proj.lora_A.default.weight  | UNEXPECTED | 
+base_model.model.transformer.h.{0...11}.attn.c_proj.lora_A.default.weight | UNEXPECTED | 
+base_model.model.transformer.h.{0...11}.mlp.c_proj.lora_B.default.weight  | UNEXPECTED | 
+base_model.model.transformer.h.{0...11}.mlp.c_fc.lora_B.default.weight    | UNEXPECTED | 
+base_model.model.transformer.h.{0...11}.mlp.c_fc.lora_A.default.weight    | UNEXPECTED | 
+base_model.model.transformer.h.{0...11}.attn.c_attn.lora_B.default.weight | UNEXPECTED | 
+base_model.model.transformer.h.{0...11}.attn.c_attn.lora_A.default.weight | UNEXPECTED | 
+transformer.h.{0...11}.attn.c_attn.lora_A.default.weight                  | MISSING    | 
+transformer.h.{0...11}.mlp.c_fc.lora_A.default.weight                     | MISSING    | 
+transformer.h.{0...11}.attn.c_proj.lora_B.default.weight                  | MISSING    | 
+transformer.h.{0...11}.attn.c_proj.lora_A.default.weight                  | MISSING    | 
+transformer.h.{0...11}.attn.c_attn.lora_B.default.weight                  | MISSING    | 
+transformer.h.{0...11}.mlp.c_fc.lora_B.default.weight                     | MISSING    | 
+transformer.h.{0...11}.mlp.c_proj.lora_A.default.weight                   | MISSING    | 
+transformer.h.{0...11}.mlp.c_proj.lora_B.default.weight                   | MISSING    | 
+
+[3mNotes:
+- UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING[3m	:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.[0m
+Обучаемые параметры: 0 || Всего параметров: 165014016 || Обучаемых: 0.0000%
+
+Параметры обучения:
+- Модель: ai-forever/rugpt3small_based_on_gpt2
+- Чекпоинт: ./gogol_finetuned_final/checkpoint-375 (только веса модели)
+- Эпохи: 3 (дополнительно)
+- Batch size: 1 (effective: 4)
+- Learning rate: 5e-5
+- Данные: 1497 train, 167 validation
+- Выходная директория: ./gogol_finetuned_resumed
+- Early stopping: включен (patience=2, threshold=0.01)
+
+Начало обучения...
+  0%|          | 0/1125 [00:00<?, ?it/s]C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\torch\utils\data\dataloader.py:775: UserWarning: 'pin_memory' argument is set as true but no accelerator is found, then device pinned memory won't be used.
+  super().__init__(loader)
+`loss_type=None` was set in the config but it is unrecognized. Using the default loss: `ForCausalLMLoss`.
+Traceback (most recent call last):
+  File "c:\Code\JuliaProject\DeadSouls\resume_training_simple.py", line 121, in main
+    trainer.train()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\transformers\trainer.py", line 1424, in train
+    return inner_training_loop(
+        args=args,
+    ...<2 lines>...
+        ignore_keys_for_eval=ignore_keys_for_eval,
+    )
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\transformers\trainer.py", line 1506, in _inner_training_loop
+    self._run_epoch(
+    ~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<9 lines>...
+        steps_trained_in_current_epoch=steps_trained_in_current_epoch,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\transformers\trainer.py", line 1734, in _run_epoch
+    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\transformers\trainer.py", line 1934, in training_step
+    self.accelerator.backward(loss, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\accelerate\accelerator.py", line 2838, in backward
+    loss.backward(**kwargs)
+    ~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\torch\_tensor.py", line 631, in backward
+    torch.autograd.backward(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        self, gradient, retain_graph, create_graph, inputs=inputs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\torch\autograd\__init__.py", line 381, in backward
+    _engine_run_backward(
+    ~~~~~~~~~~~~~~~~~~~~^
+        tensors,
+        ^^^^^^^^
+    ...<5 lines>...
+        accumulate_grad=True,
+        ^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ventu\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\torch\autograd\graph.py", line 869, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        t_outputs, *args, **kwargs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )  # Calls into the C++ engine to run the backward pass
+    ^
+RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
+  0%|          | 0/1125 [00:02<?, ?it/s]
+
+Ошибка во время обучения: element 0 of tensors does not require grad and does not have a grad_fn

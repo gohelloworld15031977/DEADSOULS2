@@ -1,0 +1,5 @@
+# Убедитесь, что .gitignore правильный
+git status  # Проверьте, какие файлы добавлены
+
+git commit -m "Code only (models excluded)"
+git push -u origin main
